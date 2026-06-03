@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Routine Sport Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #ff5e00;
+      --orange-dark: #cc4a00;
+      --orange-glow: rgba(255,94,0,0.15);
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --surface2: #1a1a1a;
+      --surface3: #222222;
+      --border: rgba(255,255,255,0.07);
+      --text: #f0f0f0;
+      --muted: #666;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--orange); letter-spacing: 2px; }
+    .logo span { color: var(--text); }
+
+    /* ─── HERO ─── */
+    .hero {
+      text-align: center; padding: 72px 24px 56px;
+      background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,94,0,0.12), transparent);
+      border-bottom: 1px solid var(--border);
+    }
+    .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(48px,8vw,88px); letter-spacing: 4px; line-height: 1; }
+    .hero h1 em { color: var(--orange); font-style: normal; }
+    .hero p { margin-top: 16px; color: var(--muted); font-size: 16px; max-width: 500px; margin-inline: auto; }
+
+    /* ─── EQUIPMENT TOGGLE ─── */
+    .equipment-section {
+      max-width: 780px; margin: 40px auto; padding: 0 24px;
+    }
+    .equipment-label {
+      text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: 3px;
+      color: var(--muted); margin-bottom: 16px;
+    }
+    .toggle-group {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .toggle-btn {
+      padding: 20px; border-radius: var(--radius); border: 1.5px solid var(--border);
+      background: var(--surface); cursor: pointer; transition: all 0.25s ease;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    }
+    .toggle-btn .icon { font-size: 32px; line-height: 1; }
+    .toggle-btn.active {
+      border-color: var(--orange); background: var(--orange-glow); color: var(--text);
+    }
+    .toggle-btn:hover:not(.active) { border-color: rgba(255,94,0,0.35); background: var(--surface2); }
+
+    /* ─── MUSCLES ─── */
+    .section-title {
+      text-align: center; font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px; letter-spacing: 3px; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .muscles-section { max-width: 780px; margin: 0 auto 40px; padding: 0 24px; }
+    .muscle-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;
+    }
+    .muscle-btn {
+      padding: 14px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+      background: var(--surface); cursor: pointer; transition: all 0.2s ease;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    }
+    .muscle-btn .micon { font-size: 22px; }
+    .muscle-btn:hover, .muscle-btn.active {
+      border-color: var(--orange); background: var(--orange-glow); color: var(--text);
+    }
+    .muscle-btn.active { box-shadow: 0 0 0 1px var(--orange); }
+
+    /* ─── MAIN LAYOUT ─── */
+    .main-grid {
+      max-width: 1100px; margin: 0 auto; padding: 0 24px 60px;
+      display: grid; grid-template-columns: 1fr 340px; gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─── CARDS ─── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px;
+    }
+    .badge {
+      font-size: 11px; padding: 4px 10px; border-radius: 20px;
+      background: var(--orange-glow); color: var(--orange); border: 1px solid var(--orange);
+    }
+
+    /* ─── EXERCISE BUTTONS ─── */
+    .exercise-list { display: flex; flex-direction: column; gap: 8px; min-height: 80px; }
+    .exercise-btn {
+      width: 100%; padding: 14px 16px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: var(--surface2);
+      cursor: pointer; transition: all 0.2s ease;
+      display: flex; align-items: center; justify-content: space-between;
+      color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; text-align: left;
+    }
+    .exercise-btn:hover { border-color: var(--orange); background: var(--orange-glow); }
+    .exercise-btn:hover .add-icon { opacity: 1; color: var(--orange); }
+    .exercise-btn .equip-tag {
+      font-size: 10px; padding: 2px 7px; border-radius: 10px;
+      background: var(--surface3); color: var(--muted); margin-left: 8px; white-space: nowrap;
+    }
+    .exercise-btn .equip-tag.solo { background: rgba(255,94,0,0.1); color: var(--orange); }
+    .add-icon { opacity: 0.3; transition: opacity 0.2s; font-size: 18px; flex-shrink: 0; }
+
+    .placeholder {
+      display: flex; align-items: center; justify-content: center;
+      height: 120px; color: var(--muted); font-size: 14px; text-align: center;
+      border: 1.5px dashed var(--border); border-radius: var(--radius-sm);
+    }
+
+    /* ─── ROUTINE LIST (UPDATED FOR REPS) ─── */
+    .routine-list { display: flex; flex-direction: column; gap: 8px; min-height: 80px; }
+    .routine-item {
+      padding: 12px 14px; border-radius: var(--radius-sm);
+      background: var(--surface2); border: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 10px;
+      animation: slideIn 0.2s ease;
+    }
+    .routine-item-header {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%;
+    }
+    .rep-controls {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--surface); padding: 4px 8px; border-radius: 6px;
+    }
+    .counter {
+      display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted);
+    }
+    .counter span { color: var(--text); font-weight: 600; min-width: 18px; text-align: center; }
+    .count-btn {
+      width: 20px; height: 20px; border-radius: 4px; border: 1px solid var(--border);
+      background: var(--surface3); color: var(--text); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
+    .count-btn:hover { background: var(--orange); border-color: var(--orange); }
+
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+    .remove-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 16px; padding: 2px 4px;
+      border-radius: 4px; transition: all 0.15s;
+    }
+    .remove-btn:hover { color: #ff4444; background: rgba(255,68,68,0.1); }
+    .clear-btn {
+      background: none; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 6px 12px; color: var(--muted); cursor: pointer; font-size: 12px;
+      font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+    }
+    .clear-btn:hover { border-color: #ff4444; color: #ff4444; }
+
+    /* ─── TIMER ─── */
+    .timer-card { position: sticky; top: 76px; }
+    .timer-display {
+      text-align: center; font-family: 'Bebas Neue', sans-serif;
+      font-size: 90px; line-height: 1; color: var(--text);
+      letter-spacing: 4px; margin: 20px 0;
+      transition: color 0.3s;
+    }
+    .timer-display.warning { color: #ffaa00; }
+    .timer-display.danger { color: #ff4444; }
+
+    .timer-ring {
+      width: 180px; height: 180px; margin: 0 auto 8px;
+      position: relative; display: flex; align-items: center; justify-content: center;
+    }
+    .timer-ring svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
+    .timer-ring-bg { stroke: var(--surface3); }
+    .timer-ring-progress { stroke: var(--orange); stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+    .timer-time { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 2px; }
+
+    .preset-group { display: flex; gap: 8px; margin-bottom: 16px; }
+    .preset-btn {
+      flex: 1; padding: 8px 4px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--muted); cursor: pointer; font-size: 13px;
+      font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+    }
+    .preset-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+    .custom-input {
+      width: 100%; padding: 10px 14px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
+      margin-bottom: 14px; outline: none; transition: border-color 0.2s;
+    }
+    .custom-input:focus { border-color: var(--orange); }
+
+    .timer-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .ctrl-btn {
+      padding: 12px 8px; border-radius: var(--radius-sm); border: none;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+      transition: all 0.2s;
+    }
+    .ctrl-btn.primary { background: var(--orange); color: white; }
+    .ctrl-btn.primary:hover { background: var(--orange-dark); }
+    .ctrl-btn.secondary { background: var(--surface3); color: var(--text); border: 1px solid var(--border); }
+    .ctrl-btn.secondary:hover { background: var(--surface2); border-color: rgba(255,255,255,0.15); }
+
+    .timer-status {
+      text-align: center; font-size: 12px; color: var(--muted); margin-top: 12px; height: 18px;
+    }
+
+    /* ─── EMPTY STATES ─── */
+    .empty-routine {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 120px; color: var(--muted); font-size: 13px; text-align: center; gap: 8px;
+      border: 1.5px dashed var(--border); border-radius: var(--radius-sm);
+    }
+    .empty-routine .big { font-size: 32px; }
+
+    /* ─── PROGRESS BAR ─── */
+    .routine-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+    }
+    .count-pill { font-size: 12px; color: var(--muted); }
+    .count-pill span { color: var(--orange); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">SPORT<span>PRO</span></div>
+  <div style="font-size:13px;color:var(--muted)">Construis ta routine</div>
+</header>
+
+<section class="hero">
+  <h1>Ta <em>Routine</em><br>Sur Mesure</h1>
+  <p>Sélectionne ton équipement, choisis tes muscles, construis ta séance.</p>
+</section>
+
+<section class="equipment-section">
+  <p class="equipment-label">Ton équipement</p>
+  <div class="toggle-group">
+    <button class="toggle-btn active" id="btn-equipment" onclick="setEquipment(true)">
+      <span class="icon">🏋️</span>
+      Avec matériel
+      <span style="font-size:11px;color:var(--muted)">Haltères, barre, machines</span>
+    </button>
+    <button class="toggle-btn" id="btn-noequipment" onclick="setEquipment(false)">
+      <span class="icon">🏃</span>
+      Sans matériel
+      <span style="font-size:11px;color:var(--muted)">Poids du corps uniquement</span>
+    </button>
+  </div>
+</section>
+
+<section class="muscles-section">
+  <p class="section-title">Groupe musculaire</p>
+  <div class="muscle-grid" id="muscleGrid">
+    <button class="muscle-btn" onclick="showExercises('pecs')" id="m-pecs"><span class="micon">💪</span>Pectoraux</button>
+    <button class="muscle-btn" onclick="showExercises('dos')" id="m-dos"><span class="micon">🔙</span>Dos</button>
+    <button class="muscle-btn" onclick="showExercises('jambes')" id="m-jambes"><span class="micon">🦵</span>Jambes</button>
+    <button class="muscle-btn" onclick="showExercises('epaules')" id="m-epaules"><span class="micon">🤸</span>Épaules</button>
+    <button class="muscle-btn" onclick="showExercises('biceps')" id="m-biceps"><span class="micon">💪</span>Biceps</button>
+    <button class="muscle-btn" onclick="showExercises('triceps')" id="m-triceps"><span class="micon">🤜</span>Triceps</button>
+    <button class="muscle-btn" onclick="showExercises('abdos')" id="m-abdos"><span class="micon">🧱</span>Abdos</button>
+    <button class="muscle-btn" onclick="showExercises('fessiers')" id="m-fessiers"><span class="micon">🍑</span>Fessiers</button>
+    <button class="muscle-btn" onclick="showExercises('cardio')" id="m-cardio"><span class="micon">❤️</span>Cardio</button>
+  </div>
+</section>
+
+<div class="main-grid">
+
+  <div style="display:flex;flex-direction:column;gap:20px;">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title" id="exerciseTitle">Exercices</div>
+        <span class="badge" id="equipBadge">Avec matériel</span>
+      </div>
+      <div class="exercise-list" id="exerciseList">
+        <div class="placeholder">← Sélectionne un groupe musculaire</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Ma Routine</div>
+        <button class="clear-btn" onclick="clearRoutine()">Tout effacer</button>
+      </div>
+      <div id="routineContainer">
+        <div class="empty-routine"><span class="big">📋</span>Ajoute des exercices à ta routine</div>
+      </div>
+      <div class="routine-footer">
+        <p class="count-pill">Total : <span id="routineCount">0</span> exercice(s)</p>
+        <button onclick="exportRoutine()" style="font-size:12px;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--orange)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Copier 📋</button>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card timer-card">
+      <div class="card-title" style="margin-bottom:16px">⏱ Timer de Repos</div>
+
+      <div class="timer-ring">
+        <svg width="180" height="180" viewBox="0 0 180 180">
+          <circle class="timer-ring-bg" cx="90" cy="90" r="80" fill="none" stroke-width="8"/>
+          <circle class="timer-ring-progress" id="timerProgress" cx="90" cy="90" r="80" fill="none" stroke-width="8"
+            stroke-dasharray="502.65" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-time" id="timerDisplay">60</div>
+      </div>
+
+      <p style="text-align:center;font-size:11px;color:var(--muted);margin-bottom:16px">Durée de repos</p>
+
+      <div class="preset-group">
+        <button class="preset-btn" onclick="setPreset(30)">30s</button>
+        <button class="preset-btn" onclick="setPreset(60)">1min</button>
+        <button class="preset-btn" onclick="setPreset(90)">1m30</button>
+        <button class="preset-btn" onclick="setPreset(120)">2min</button>
+      </div>
+
+      <input class="custom-input" type="number" id="customTime" placeholder="Temps personnalisé (s)" min="1" max="600">
+
+      <div class="timer-controls">
+        <button class="ctrl-btn primary" onclick="startTimer()">▶ Start</button>
+        <button class="ctrl-btn secondary" onclick="pauseTimer()">⏸ Pause</button>
+        <button class="ctrl-btn secondary" onclick="resetTimer()">↺ Reset</button>
+      </div>
+
+      <div class="timer-status" id="timerStatus"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// (Base de données inchangée...)
+const exercisesDB = {
+  pecs: {
+    withEquip: [
+      { name: "Développé couché barre", tag: "barre" },
+      { name: "Développé couché haltères", tag: "haltères" },
+      { name: "Développé incliné", tag: "haltères" },
+      { name: "Développé décliné", tag: "barre" },
+      { name: "Écarté haltères", tag: "haltères" },
+      { name: "Pec deck machine", tag: "machine" },
+      { name: "Câble crossover", tag: "câble" },
+      { name: "Pull-over haltère", tag: "haltères" },
+    ],
+    withoutEquip: [
+      { name: "Pompes classiques", tag: null },
+      { name: "Pompes larges", tag: null },
+      { name: "Pompes diamant", tag: null },
+      { name: "Pompes déclinées", tag: null },
+      { name: "Pompes inclinées", tag: null },
+      { name: "Dips sur chaises", tag: null },
+      { name: "Pompes explosives", tag: null },
+    ]
+  },
+  dos: {
+    withEquip: [
+      { name: "Tractions (lestées)", tag: "barre" },
+      { name: "Rowing barre", tag: "barre" },
+      { name: "Rowing haltère unilatéral", tag: "haltères" },
+      { name: "Tirage vertical", tag: "câble" },
+      { name: "Tirage horizontal", tag: "câble" },
+      { name: "Soulevé de terre", tag: "barre" },
+      { name: "Good morning", tag: "barre" },
+      { name: "Pull-over câble", tag: "câble" },
+    ],
+    withoutEquip: [
+      { name: "Tractions pronation", tag: null },
+      { name: "Tractions supination", tag: null },
+      { name: "Tractions neutres", tag: null },
+      { name: "Superman", tag: null },
+      { name: "Inverted row (table)", tag: null },
+      { name: "Aquaman (sol)", tag: null },
+    ]
+  },
+  jambes: {
+    withEquip: [
+      { name: "Squat barre", tag: "barre" },
+      { name: "Squat hack machine", tag: "machine" },
+      { name: "Presse à jambes", tag: "machine" },
+      { name: "Fentes haltères", tag: "haltères" },
+      { name: "Leg curl couché", tag: "machine" },
+      { name: "Leg extension", tag: "machine" },
+      { name: "Mollets debout machine", tag: "machine" },
+      { name: "Romanian deadlift", tag: "barre" },
+      { name: "Goblet squat", tag: "haltères" },
+    ],
+    withoutEquip: [
+      { name: "Squat air", tag: null },
+      { name: "Fentes avant", tag: null },
+      { name: "Fentes latérales", tag: null },
+      { name: "Squat sauté", tag: null },
+      { name: "Pistol squat", tag: null },
+      { name: "Wall sit", tag: null },
+      { name: "Mollets debout", tag: null },
+      { name: "Step-up (escalier)", tag: null },
+    ]
+  },
+  epaules: {
+    withEquip: [
+      { name: "Développé militaire barre", tag: "barre" },
+      { name: "Arnold press", tag: "haltères" },
+      { name: "Élévations latérales", tag: "haltères" },
+      { name: "Élévations frontales", tag: "haltères" },
+      { name: "Oiseau haltères", tag: "haltères" },
+      { name: "Shrugs barre", tag: "barre" },
+      { name: "Face pull câble", tag: "câble" },
+      { name: "Upright row", tag: "barre" },
+    ],
+    withoutEquip: [
+      { name: "Pike push-up", tag: null },
+      { name: "Handstand push-up", tag: null },
+      { name: "Élévations latérales (bouteilles)", tag: null },
+      { name: "Shrugs (sacs lestés)", tag: null },
+      { name: "Planche inclinée push-up", tag: null },
+      { name: "Y raise au sol", tag: null },
+    ]
+  },
+  biceps: {
+    withEquip: [
+      { name: "Curl barre droite", tag: "barre" },
+      { name: "Curl barre EZ", tag: "barre" },
+      { name: "Curl marteau haltères", tag: "haltères" },
+      { name: "Curl incliné", tag: "haltères" },
+      { name: "Curl pupitre", tag: "haltères" },
+      { name: "Curl câble bas", tag: "câble" },
+      { name: "Curl concentration", tag: "haltères" },
+      { name: "Curl Zottman", tag: "haltères" },
+    ],
+    withoutEquip: [
+      { name: "Curl inversé tractions", tag: null },
+      { name: "Chin-up", tag: null },
+      { name: "Flexion isométrique porte", tag: null },
+      { name: "Curl avec serviette", tag: null },
+      { name: "Inverted curl bodyweight", tag: null },
+    ]
+  },
+  triceps: {
+    withEquip: [
+      { name: "Extension corde câble", tag: "câble" },
+      { name: "Barre au front (skull crusher)", tag: "barre" },
+      { name: "French press haltère", tag: "haltères" },
+      { name: "Kickback haltère", tag: "haltères" },
+      { name: "Dips parallèles", tag: "machine" },
+      { name: "Extension unilatérale câble", tag: "câble" },
+      { name: "Close grip bench press", tag: "barre" },
+    ],
+    withoutEquip: [
+      { name: "Pompes serrées (diamant)", tag: null },
+      { name: "Dips sur chaises", tag: null },
+      { name: "Extension triceps au sol", tag: null },
+      { name: "Pike push-up triceps", tag: null },
+      { name: "Triceps dips sur banc", tag: null },
+    ]
+  },
+  abdos: {
+    withEquip: [
+      { name: "Crunch machine", tag: "machine" },
+      { name: "Relevé de jambes suspendu", tag: "barre" },
+      { name: "Russian twist leste", tag: "haltères" },
+      { name: "Ab wheel", tag: "roue" },
+      { name: "Cable crunch", tag: "câble" },
+      { name: "Woodchopper câble", tag: "câble" },
+      { name: "Side bend haltère", tag: "haltères" },
+    ],
+    withoutEquip: [
+      { name: "Crunch classique", tag: null },
+      { name: "Gainage frontal", tag: null },
+      { name: "Gainage latéral", tag: null },
+      { name: "Mountain climbers", tag: null },
+      { name: "Relevé de jambes au sol", tag: null },
+      { name: "Russian twist", tag: null },
+      { name: "Bicycle crunch", tag: null },
+      { name: "Flutter kicks", tag: null },
+      { name: "Hollow body hold", tag: null },
+    ]
+  },
+  fessiers: {
+    withEquip: [
+      { name: "Hip thrust barre", tag: "barre" },
+      { name: "Cable kickback", tag: "câble" },
+      { name: "Presse jambes pieds hauts", tag: "machine" },
+      { name: "Romanian deadlift", tag: "barre" },
+      { name: "Abducteur machine", tag: "machine" },
+      { name: "Squat sumo", tag: "barre" },
+      { name: "Step-up leste", tag: "haltères" },
+    ],
+    withoutEquip: [
+      { name: "Hip thrust au sol", tag: null },
+      { name: "Donkey kick", tag: null },
+      { name: "Fire hydrant", tag: null },
+      { name: "Fesses squat pulse", tag: null },
+      { name: "Clamshell", tag: null },
+      { name: "Fentes sumo", tag: null },
+      { name: "Single leg hip thrust", tag: null },
+    ]
+  },
+  cardio: {
+    withEquip: [
+      { name: "Vélo elliptique", tag: "machine" },
+      { name: "Tapis de course", tag: "machine" },
+      { name: "Rameur (ergomètre)", tag: "machine" },
+      { name: "Corde à sauter", tag: "corde" },
+      { name: "Stepper", tag: "machine" },
+      { name: "Vélo stationnaire", tag: "machine" },
+      { name: "Battle ropes", tag: "cordes" },
+    ],
+    withoutEquip: [
+      { name: "Jumping jacks", tag: null },
+      { name: "Burpees", tag: null },
+      { name: "High knees", tag: null },
+      { name: "Box jumps (chaise)", tag: null },
+      { name: "Sprint sur place", tag: null },
+      { name: "Bear crawl", tag: null },
+      { name: "Squat jump", tag: null },
+      { name: "Inchworm", tag: null },
+    ]
+  }
+};
+
+const muscleNames = {
+  pecs:"Pectoraux", dos:"Dos", jambes:"Jambes", epaules:"Épaules",
+  biceps:"Biceps", triceps:"Triceps", abdos:"Abdos", fessiers:"Fessiers", cardio:"Cardio"
+};
+
+let hasEquipment = true;
+let currentMuscle = null;
+let routine = [];
+
+function setEquipment(val) {
+  hasEquipment = val;
+  document.getElementById('btn-equipment').classList.toggle('active', val);
+  document.getElementById('btn-noequipment').classList.toggle('active', !val);
+  document.getElementById('equipBadge').textContent = val ? 'Avec matériel' : 'Sans matériel';
+  if (currentMuscle) showExercises(currentMuscle);
+}
+
+function showExercises(muscle) {
+  currentMuscle = muscle;
+  document.querySelectorAll('.muscle-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('m-' + muscle).classList.add('active');
+  document.getElementById('exerciseTitle').textContent = muscleNames[muscle];
+
+  const data = exercisesDB[muscle];
+  const list = hasEquipment ? data.withEquip : data.withoutEquip;
+  const container = document.getElementById('exerciseList');
+  container.innerHTML = '';
+
+  list.forEach(ex => {
+    const btn = document.createElement('button');
+    btn.className = 'exercise-btn';
+    btn.innerHTML = `
+      <span style="flex:1">${ex.name}${ex.tag ? `<span class="equip-tag">${ex.tag}</span>` : ''}</span>
+      <span class="add-icon">+</span>`;
+    btn.onclick = () => addToRoutine(ex.name);
+    container.appendChild(btn);
+  });
+}
+
+/** ─── MODIFICATIONS : SYSTÈME DE REPS ─── **/
+
+function addToRoutine(name) {
+  // On ajoute un objet au lieu d'une simple chaîne
+  routine.push({
+    name: name,
+    sets: 3,
+    reps: 12
+  });
+  renderRoutine();
+}
+
+function updateCounter(idx, field, delta) {
+  routine[idx][field] = Math.max(1, routine[idx][field] + delta);
+  renderRoutine();
+}
+
+function renderRoutine() {
+  const container = document.getElementById('routineContainer');
+  document.getElementById('routineCount').textContent = routine.length;
+  
+  if (routine.length === 0) {
+    container.innerHTML = '<div class="empty-routine"><span class="big">📋</span>Ajoute des exercices à ta routine</div>';
+    return;
+  }
+
+  const ul = document.createElement('div');
+  ul.className = 'routine-list';
+  
+  routine.forEach((ex, i) => {
+    const item = document.createElement('div');
+    item.className = 'routine-item';
+    item.innerHTML = `
+      <div class="routine-item-header">
+        <span style="font-size:12px;color:var(--muted);margin-right:10px;font-weight:600">${String(i+1).padStart(2,'0')}</span>
+        <span style="flex:1;font-weight:500">${ex.name}</span>
+        <button class="remove-btn" onclick="removeFromRoutine(${i})" title="Retirer">✕</button>
+      </div>
+      <div class="rep-controls">
+        <div class="counter">
+          Séries : 
+          <button class="count-btn" onclick="updateCounter(${i}, 'sets', -1)">-</button>
+          <span>${ex.sets}</span>
+          <button class="count-btn" onclick="updateCounter(${i}, 'sets', 1)">+</button>
+        </div>
+        <div class="counter">
+          Reps : 
+          <button class="count-btn" onclick="updateCounter(${i}, 'reps', -1)">-</button>
+          <span>${ex.reps}</span>
+          <button class="count-btn" onclick="updateCounter(${i}, 'reps', 1)">+</button>
+        </div>
+      </div>`;
+    ul.appendChild(item);
+  });
+  
+  container.innerHTML = '';
+  container.appendChild(ul);
+}
+
+function exportRoutine() {
+  if (routine.length === 0) return;
+  // Mise à jour de l'export pour inclure les séries/reps
+  const text = routine.map((ex, i) => `${i+1}. ${ex.name} (${ex.sets}x${ex.reps})`).join('\n');
+  navigator.clipboard.writeText('Ma routine :\n' + text).then(() => {
+    const btn = event.currentTarget;
+    btn.textContent = 'Copié ✅';
+    setTimeout(() => btn.textContent = 'Copier 📋', 2000);
+  });
+}
+
+function removeFromRoutine(idx) {
+  routine.splice(idx, 1);
+  renderRoutine();
+}
+
+function clearRoutine() {
+  routine = [];
+  renderRoutine();
+}
+
+// ─── TIMER ───
+let timer = null;
+let timeLeft = 60;
+let totalTime = 60;
+
+const circumference = 2 * Math.PI * 80;
+const progressEl = document.getElementById('timerProgress');
+const displayEl = document.getElementById('timerDisplay');
+const statusEl = document.getElementById('timerStatus');
+
+function updateDisplay() {
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  displayEl.textContent = m > 0 ? `${m}:${String(s).padStart(2,'0')}` : timeLeft;
+  const pct = timeLeft / totalTime;
+  progressEl.style.strokeDashoffset = circumference * (1 - pct);
+  progressEl.style.stroke = pct > 0.4 ? 'var(--orange)' : pct > 0.15 ? '#ffaa00' : '#ff4444';
+}
+
+function setPreset(s) {
+  clearInterval(timer); timer = null;
+  timeLeft = totalTime = s;
+  document.getElementById('customTime').value = '';
+  statusEl.textContent = '';
+  updateDisplay();
+}
+
+function startTimer() {
+  const custom = parseInt(document.getElementById('customTime').value);
+  if (custom > 0) { timeLeft = totalTime = custom; }
+  clearInterval(timer);
+  statusEl.textContent = '⏳ En cours…';
+  timer = setInterval(() => {
+    if (timeLeft > 0) {
+      timeLeft--;
+      updateDisplay();
+    } else {
+      clearInterval(timer); timer = null;
+      statusEl.textContent = '✅ Repos terminé ! Reprends !';
+      progressEl.style.stroke = '#22cc66';
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timer); timer = null;
+  statusEl.textContent = '⏸ En pause';
+}
+
+function resetTimer() {
+  clearInterval(timer); timer = null;
+  timeLeft = totalTime;
+  statusEl.textContent = '';
+  updateDisplay();
+}
+
+updateDisplay();
+</script>
+</body>
+</html>
