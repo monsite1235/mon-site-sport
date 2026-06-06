@@ -261,6 +261,29 @@
     }
     .count-pill { font-size: 12px; color: var(--muted); }
     .count-pill span { color: var(--orange); font-weight: 600; }
+
+    /* ─── MODAL EXPLICATIONS ─── */
+    .tuto-modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(10,10,10,0.95); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .tuto-modal-content {
+      background: var(--surface); border: 1px solid var(--orange);
+      padding: 24px; border-radius: var(--radius); max-width: 460px; width: 90%;
+      position: relative; box-shadow: 0 0 30px var(--orange-glow);
+    }
+    .tuto-modal-close {
+      position: absolute; top: 14px; right: 16px; background: none; border: none;
+      color: var(--muted); font-size: 20px; cursor: pointer; transition: color 0.2s;
+    }
+    .tuto-modal-close:hover { color: #ff4444; }
+    .tuto-text-box {
+      font-size: 14px; color: var(--text); margin-top: 16px; line-height: 1.6;
+      background: rgba(255,255,255,0.02); padding: 16px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); max-height: 300px; overflow-y: auto;
+    }
+    .tuto-text-box strong { color: var(--orange); }
   </style>
 </head>
 <body>
@@ -371,8 +394,17 @@
 
 </div>
 
+<div class="tuto-modal" id="tutoModal">
+  <div class="tuto-modal-content">
+    <button class="tuto-modal-close" onclick="closeTutoModal()">✕</button>
+    <h3 id="tutoModalTitle" style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--text)">---</h3>
+    <p style="font-size:11px;color:var(--orange);text-transform:uppercase;letter-spacing:2px;margin-top:4px;">📖 Guide d'exécution</p>
+    
+    <div class="tuto-text-box" id="tutoModalText"></div>
+  </div>
+</div>
+
 <script>
-// (Base de données inchangée...)
 const exercisesDB = {
   pecs: {
     withEquip: [
@@ -560,6 +592,155 @@ const exercisesDB = {
   }
 };
 
+// DICTIONNAIRE COMPLET ET UNIQUE POUR CHAQUE EXERCICE
+const explanationsDB = {
+  // Pectoraux
+  "Développé couché barre": "<strong>Position :</strong> Allongé sur le banc, les pieds à plat au sol. Saisissez la barre avec une prise un peu plus large que les épaules.<br><strong>Mouvement :</strong> Descendez la barre de manière contrôlée jusqu'à toucher le milieu du thorax, puis poussez vers le haut sans verrouiller brusquement les coudes.<br><strong>Respiration :</strong> Inspirez à la descente, expirez en poussant.",
+  "Développé couché haltères": "<strong>Position :</strong> Allongé sur le banc, un haltère dans chaque main au niveau de la poitrine.<br><strong>Mouvement :</strong> Poussez les haltères verticalement en les rapprochant légèrement en haut, puis contrôlez la descente pour étirer les pectoraux.<br><strong>Respiration :</strong> Inspirez à la descente, expirez à la montée.",
+  "Développé incliné": "<strong>Position :</strong> Assis sur un banc incliné entre 30 et 45 degrés. Haltères au niveau du haut de la poitrine.<br><strong>Mouvement :</strong> Développez les charges vers le haut. Cible principalement le faisceau supérieur (le haut) des pectoraux.<br><strong>Respiration :</strong> Expirez lors de la poussée.",
+  "Développé décliné": "<strong>Position :</strong> Allongé sur un banc incliné tête vers le bas. Pieds calés.<br><strong>Mouvement :</strong> Descendez la barre ou les charges sur le bas des pectoraux puis repoussez. Cible le bas de la poitrine.<br><strong>Respiration :</strong> Inspirez à la descente, expirez à l'effort.",
+  "Écarté haltères": "<strong>Position :</strong> Allongé sur un banc plat, haltères saisis au-dessus de vous, coudes légèrement fléchis.<br><strong>Mouvement :</strong> Ouvrez les bras en arc de cercle sur les côtés jusqu'à ressentir un bon étirement, puis ramenez les charges au centre en contractant la poitrine.<br><strong>Respiration :</strong> Inspirez à l'ouverture, expirez à la fermeture.",
+  "Pec deck machine": "<strong>Position :</strong> Assis sur la machine, le dos bien plaqué, coudes ou mains calés sur les manchons.<br><strong>Mouvement :</strong> Rapprochez les bras devant vous en serrant volontairement les pectoraux en fin de course. Revenez lentement.<br><strong>Respiration :</strong> Expirez en fermant les bras.",
+  "Câble crossover": "<strong>Position :</strong> Debout au milieu de la poulie vis-à-vis, un pied en avant pour la stabilité, buste penché.<br><strong>Mouvement :</strong> Ramenez les poignées vers le bas et l'avant en croisant légèrement les mains. Gardez une légère flexion des coudes.<br><strong>Respiration :</strong> Expirez lors de la contraction.",
+  "Pull-over haltère": "<strong>Position :</strong> Allongé perpendiculairement ou à plat sur un banc, un haltère tenu à deux mains au-dessus du visage.<br><strong>Mouvement :</strong> Descendez l'haltère loin derrière votre tête en gardant les bras presque tendus, puis remontez-le au niveau de la poitrine.<br><strong>Respiration :</strong> Inspirez profondément à la descente pour ouvrir la cage thoracique, expirez en remontant.",
+  "Pompes classiques": "<strong>Position :</strong> Face au sol, mains écartées à la largeur des épaules, corps parfaitement aligné de la tête aux pieds.<br><strong>Mouvement :</strong> Descendez tout le bloc corporel en fléchissant les coudes à 45° par rapport au buste, puis repoussez le sol.<br><strong>Respiration :</strong> Inspirez en bas, expirez en remontant.",
+  "Pompes larges": "<strong>Position :</strong> Identique aux pompes, mais placez vos mains nettement plus larges que la ligne des épaules.<br><strong>Mouvement :</strong> Descendez le buste au sol. Cette variante sollicite davantage la partie externe des pectoraux.<br><strong>Respiration :</strong> Expirez lors de la montée.",
+  "Pompes diamant": "<strong>Position :</strong> En position de pompes, rapprochez vos mains sous la poitrine de sorte que vos pouces et index forment un diamant/triangle.<br><strong>Mouvement :</strong> Descendez le buste sur vos mains. Accentue massivement le travail des triceps et de l'intérieur des pectoraux.<br><strong>Respiration :</strong> Expirez en poussant.",
+  "Pompes déclinées": "<strong>Position :</strong> Position de pompes, mais placez vos pieds en hauteur (sur un lit, une chaise ou un banc).<br><strong>Mouvement :</strong> Effectuez vos flexions de bras. Transfère le poids vers le haut du corps pour cibler le haut des pectoraux.<br><strong>Respiration :</strong> Expirez en tendant les bras.",
+  "Pompes inclinées": "<strong>Position :</strong> Placez vos mains en hauteur (sur une table, un rebord de lit ou un banc) et vos pieds au sol.<br><strong>Mouvement :</strong> Descendez la poitrine vers le support. Idéal pour débuter ou cibler le bas de la poitrine.<br><strong>Respiration :</strong> Expirez en repoussant le support.",
+  "Dips sur chaises": "<strong>Position :</strong> Placez deux chaises stables l'une en face de l'autre (ou utilisez une seule chaise derrière vous). Mains sur le rebord, jambes devant.<br><strong>Mouvement :</strong> Fléchissez les bras pour descendre vos fesses vers le sol, puis poussez pour remonter.<br><strong>Respiration :</strong> Inspirez à la descente, expirez à la montée.",
+  "Pompes explosives": "<strong>Position :</strong> Position de pompes classiques.<br><strong>Mouvement :</strong> Descendez lentement puis repoussez le sol avec une force maximale afin que vos mains décollent du sol (possibilité de taper dans les mains).<br><strong>Respiration :</strong> Expirez de manière explosive à la poussée.",
+
+  // Dos
+  "Tractions (lestées)": "<strong>Position :</strong> Suspendu à une barre fixe, mains en pronation (paumes vers l'avant) plus larges que les épaules.<br><strong>Mouvement :</strong> Tirez avec votre dos pour monter votre cage thoracique jusqu'à la barre. Redescendez de façon contrôlée.<br><strong>Respiration :</strong> Expirez en montant.",
+  "Rowing barre": "<strong>Position :</strong> Debout, pieds largeur de hanches, buste penché en avant à 45°, dos bien droit. Barre tenue bras tendus.<br><strong>Mouvement :</strong> Tirez la barre vers le bas de votre nombril en serrant vos omoplates et en gardant vos coudes près du corps.<br><strong>Respiration :</strong> Expirez en tirant la barre.",
+  "Rowing haltère unilatéral": "<strong>Position :</strong> Un genou et une main posés sur un banc plat, l'autre jambe au sol. Un haltère dans la main libre.<br><strong>Mouvement :</strong> Tirez l'haltère vers votre hanche en montant le coude vers le plafond. Gardez le dos fixe.<br><strong>Respiration :</strong> Expirez en montant la charge.",
+  "Tirage vertical": "<strong>Position :</strong> Assis à la machine de tirage, cuisses calées sous les boudins, saisissez la barre large.<br><strong>Mouvement :</strong> Tirez la barre vers le haut de votre poitrine en tirant vos coudes vers le bas et l'arrière.<br><strong>Respiration :</strong> Expirez pendant la traction de la barre.",
+  "Tirage horizontal": "<strong>Position :</strong> Assis face à la poulie basse, pieds calés, dos droit légèrement incliné.<br><strong>Mouvement :</strong> Tirez la poignée double vers votre abdomen en ouvrant la poitrine et en resserrant les omoplates.<br><strong>Respiration :</strong> Expirez en ramenant la charge.",
+  "Soulevé de terre": "<strong>Position :</strong> Debout face à la barre au sol. Pieds largeur de hanches, saisissez la barre, fléchissez les genoux et gardez le dos rigoureusement plat.<br><strong>Mouvement :</strong> Poussez sur vos jambes et redressez le buste simultanément pour vous mettre droit, la barre longeant vos tibias et cuisses.<br><strong>Respiration :</strong> Expirez en arrivant en position debout.",
+  "Good morning": "<strong>Position :</strong> Debout, une barre placée sur vos trapèzes (comme pour un squat). Genoux très légèrement fléchis.<br><strong>Mouvement :</strong> Penchez le buste en avant en poussant vos hanches loin derrière. Le dos doit rester cambré et plat. Remontez en serrant les fessiers.<br><strong>Respiration :</strong> Inspirez à la descente, expirez au redressement.",
+  "Pull-over câble": "<strong>Position :</strong> Debout face à la poulie haute, attrapez la barre ou la corde, reculez d'un pas et penchez légèrement le buste.<br><strong>Mouvement :</strong> Bras presque tendus, amenez la barre vers vos cuisses en contractant fortement vos grands dorsaux.<br><strong>Respiration :</strong> Expirez en ramenant les bras vers le bas.",
+  "Tractions pronation": "<strong>Position :</strong> Suspendu à une barre, paumes vers l'avant.<br><strong>Mouvement :</strong> Amenez le haut du buste à la barre en engageant le dos. Évitez de vous balancer.<br><strong>Respiration :</strong> Expirez en montant.",
+  "Tractions supination": "<strong>Position :</strong> Suspendu à la barre, paumes vers votre visage (largeur d'épaules).<br><strong>Mouvement :</strong> Tirez votre corps vers le haut. Cette prise sollicite intensément les biceps en plus du dos.<br><strong>Respiration :</strong> Expirez en montant.",
+  "Tractions neutres": "<strong>Position :</strong> Saisissez les poignées parallèles de la barre de traction (paumes face à face).<br><strong>Mouvement :</strong> Tirez jusqu'à amener le menton à hauteur des mains. Très confortable pour les articulations des poignets et des coudes.<br><strong>Respiration :</strong> Expirez à la montée.",
+  "Superman": "<strong>Position :</strong> Allongé sur le ventre au sol, bras tendus devant vous et jambes tendues.<br><strong>Mouvement :</strong> Décollez simultanément vos bras, votre poitrine et vos cuisses du sol en contractant les lombaires et le dos. Tenez 2 secondes et relâchez.<br><strong>Respiration :</strong> Expirez lors du décollage du corps.",
+  "Inverted row (table)": "<strong>Position :</strong> Allongé sous une table solide. Saisissez le rebord à deux mains, corps droit et gainé, talons ancrés au sol.<br><strong>Mouvement :</strong> Tirez sur vos bras pour amener votre poitrine contre le dessous de la table. Gardez le corps aligné.<br><strong>Respiration :</strong> Expirez en montant.",
+  "Aquaman (sol)": "<strong>Position :</strong> Allongé sur le ventre au sol.<br><strong>Mouvement :</strong> Levez le bras droit et la jambe gauche en même temps, puis alternez avec le bras gauche et la jambe droite. Renforce la chaîne postérieure de façon douce.<br><strong>Respiration :</strong> Respirez régulièrement de manière fluide.",
+
+  // Jambes
+  "Squat barre": "<strong>Position :</strong> Barre reposant sur vos trapèzes, pieds un peu plus larges que les hanches, pointes légèrement vers l'extérieur.<br><strong>Mouvement :</strong> Descendez en poussant vos fesses en arrière et en ouvrant les genoux. Gardez le buste fier et le dos droit jusqu'à la parallèle.<br><strong>Respiration :</strong> Inspirez à la descente, expirez en remontant.",
+  "Squat hack machine": "<strong>Position :</strong> Placez-vous dans la machine, le dos plaqué contre le dossier mobile, épaules sous les cales.<br><strong>Mouvement :</strong> Descendez en pliant les jambes de manière sécurisée puis poussez fort dans la plateforme. Excellent pour isoler les quadriceps.<br><strong>Respiration :</strong> Expirez à la poussée.",
+  "Presse à jambes": "<strong>Position :</strong> Assis sur le siège de la presse, pieds posés au milieu de la plateforme, écartement largeur d'épaules.<br><strong>Mouvement :</strong> Déverrouillez la sécurité, descendez la plateforme vers votre poitrine sans décoller les fesses du siège, puis repoussez sans tendre complètement les genoux.<br><strong>Respiration :</strong> Inspirez à la descente, expirez à l'extension.",
+  "Fentes haltères": "<strong>Position :</strong> Debout, un haltère dans chaque main le long du corps.<br><strong>Mouvement :</strong> Faites un grand pas en avant et descendez le genou arrière près du sol (les deux genoux doivent former un angle de 90°). Repoussez pour revenir en arrière.<br><strong>Respiration :</strong> Expirez en remontant.",
+  "Leg curl couché": "<strong>Position :</strong> Allongé sur le ventre sur la machine, le boudin placé juste sous vos mollets.<br><strong>Mouvement :</strong> Pliez les jambes en ramenant vos talons vers vos fessiers. Contrôlez le retour pour solliciter les ischio-jambiers.<br><strong>Respiration :</strong> Expirez en pliant les jambes.",
+  "Leg extension": "<strong>Position :</strong> Assis sur la machine, les mains agrippant les poignées latérales, boudin posé sur le bas de vos tibias.<br><strong>Mouvement :</strong> Tendez les jambes vers le haut en contractant intensément le dessus des cuisses (quadriceps).<br><strong>Respiration :</strong> Expirez en tendant les jambes.",
+  "Mollets debout machine": "<strong>Position :</strong> Épaules sous les cales de la machine, pointes des pieds sur le rebord de la cale, talons dans le vide.<br><strong>Mouvement :</strong> Descendez au maximum vos talons pour étirer les mollets, puis montez le plus haut possible sur la pointe des pieds.<br><strong>Respiration :</strong> Expirez lors de la montée sur les pointes.",
+  "Romanian deadlift": "<strong>Position :</strong> Debout, barre tenue devant les cuisses. Genoux déverrouillés (très légèrement pliés) et fixes.<br><strong>Mouvement :</strong> Faites glisser la barre le long de vos jambes en basculant vos hanches vers l'arrière jusqu'à ressentir un étirement derrière les cuisses. Remontez.<br><strong>Respiration :</strong> Inspirez en descendant, expirez en remontant.",
+  "Goblet squat": "<strong>Position :</strong> Debout, tenez un haltère lourd verticalement contre votre poitrine avec les deux mains (comme une coupe).<br><strong>Mouvement :</strong> Réalisez un squat profond. Le poids à l'avant aide à garder le dos très droit.<br><strong>Respiration :</strong> Expirez à la remontée.",
+  "Squat air": "<strong>Position :</strong> Debout, pieds écartés de la largeur des épaules, bras tendus devant vous.<br><strong>Mouvement :</strong> Descendez vos hanches sous le niveau de vos genoux en gardant vos talons vissés au sol, puis remontez.<br><strong>Respiration :</strong> Inspirez en descendant, expirez en montant.",
+  "Fentes avant": "<strong>Position :</strong> Debout, mains sur les hanches.<br><strong>Mouvement :</strong> Faites un pas en avant, descendez verticalement, puis poussez avec votre jambe avant pour revenir à la position de départ. Alternez les côtés.<br><strong>Respiration :</strong> Expirez lors du retour en position debout.",
+  "Fentes latérales": "<strong>Position :</strong> Debout, pieds très écartés.<br><strong>Mouvement :</strong> Transférez le poids de votre corps sur un seul côté en pliant le genou de cette jambe tandis que l'autre reste tendue. Revenez au centre.<br><strong>Respiration :</strong> Expirez en repoussant pour revenir au centre.",
+  "Squat sauté": "<strong>Position :</strong> Pieds écartés largeur d'épaules.<br><strong>Mouvement :</strong> Effectuez un squat classique, puis enchaînez directement avec une extension explosive pour sauter le plus haut possible. Amortissez souplement sur la pointe des pieds.<br><strong>Respiration :</strong> Expirez au moment du saut.",
+  "Pistol squat": "<strong>Position :</strong> Debout sur une seule jambe, l'autre jambe est tendue devant vous dans le vide.<br><strong>Mouvement :</strong> Descendez sur une seule jambe de manière ultra contrôlée jusqu'à être totalement accroupi, puis remontez. Exercice de force avancé.<br><strong>Respiration :</strong> Expirez fortement à la remontée.",
+  "Wall sit": "<strong>Position :</strong> Plaquez votre dos contre un mur et descendez vos fesses pour que vos cuisses soient parallèles au sol (position de la chaise).<br><strong>Mouvement :</strong> Maintenez la position de manière isométrique sans bouger pendant le temps imparti.<br><strong>Respiration :</strong> Respirez calmement et profondément par le nez.",
+  "Mollets debout": "<strong>Position :</strong> Debout sur une marche d'escalier ou au sol sur la pointe des pieds.<br><strong>Mouvement :</strong> Montez au maximum sur vos pointes de pieds, contractez une seconde en haut, puis redescendez lentement.<br><strong>Respiration :</strong> Respirez de manière régulière.",
+  "Step-up (escalier)": "<strong>Position :</strong> Face à une marche haute, une chaise solide ou un banc.<br><strong>Mouvement :</strong> Posez un pied sur le support, poussez sur cette jambe pour monter tout votre corps dessus. Redescendez doucement.<br><strong>Respiration :</strong> Expirez lors de la montée.",
+
+  // Épaules
+  "Développé militaire barre": "<strong>Position :</strong> Debout ou assis, barre reposant sur le haut de votre poitrine, mains prises pronation.<br><strong>Mouvement :</strong> Développez la barre verticalement au-dessus de votre tête en rentrant légèrement la tête pour laisser passer la barre.<br><strong>Respiration :</strong> Expirez en tendant les bras en haut.",
+  "Arnold press": "<strong>Position :</strong> Assis, un haltère dans chaque main au niveau des épaules avec les paumes tournées vers VOTRE visage.<br><strong>Mouvement :</strong> Poussez les haltères vers le haut tout en effectuant une rotation des poignets à 180° pour finir les paumes vers l'avant.<br><strong>Respiration :</strong> Expirez pendant la poussée et la rotation.",
+  "Élévations latérales": "<strong>Position :</strong> Debout, un haltère dans chaque main, buste légèrement incliné vers l'avant.<br><strong>Mouvement :</strong> Élevez les bras sur les côtés jusqu'à l'horizontale en menant le mouvement avec vos coudes. Ne montez pas plus haut que les épaules.<br><strong>Respiration :</strong> Expirez en montant les bras.",
+  "Élévations frontales": "<strong>Position :</strong> Debout, haltères posés sur le devant de vos cuisses.<br><strong>Mouvement :</strong> Montez les bras l'un après l'autre (ou ensemble) devant vous jusqu'à hauteur des yeux. Cible l'avant de l'épaule.<br><strong>Respiration :</strong> Expirez lors de la montée.",
+  "Oiseau haltères": "<strong>Position :</strong> Buste penché en avant presque parallèle au sol, dos parfaitement plat, un haltère dans chaque main sous vous.<br><strong>Mouvement :</strong> Ouvrez vos bras sur les côtés comme des ailes pour recruter l'arrière de l'épaule. Serrez le haut du dos en fin de course.<br><strong>Respiration :</strong> Expirez à l'ouverture.",
+  "Shrugs barre": "<strong>Position :</strong> Debout, barre tenue bras tendus devant vos cuisses.<br><strong>Mouvement :</strong> Haussez les épaules le plus haut possible vers vos oreilles sans plier les coudes. Cible les trapèzes.<br><strong>Respiration :</strong> Expirez en haussant les épaules.",
+  "Face pull câble": "<strong>Position :</strong> Face à la poulie haute, corde tenue à deux mains avec les pouces orientés vers l'arrière.<br><strong>Mouvement :</strong> Tirez la corde vers votre front en écartant vos mains et en ouvrant grand vos coudes vers l'arrière.<br><strong>Respiration :</strong> Expirez en tirant vers votre visage.",
+  "Upright row": "<strong>Position :</strong> Debout, barre tenue à plat contre vos cuisses avec une prise serrée.<br><strong>Mouvement :</strong> Tirez la barre verticalement le long du corps jusqu'au menton en montant vos coudes très haut au-dessus des épaules.<br><strong>Respiration :</strong> Expirez en montant la barre.",
+  "Pike push-up": "<strong>Position :</strong> Position de pompes, mais avancez vos pieds et montez vos fesses très haut pour former un 'V' inversé.<br><strong>Mouvement :</strong> Fléchissez les bras pour amener le sommet de votre tête au sol entre vos mains, puis repoussez. Variante de développé épaules au poids du corps.<br><strong>Respiration :</strong> Expirez en poussant.",
+  "Handstand push-up": "<strong>Position :</strong> En appui tendu renversé (équilibre) contre un mur, bras tendus, corps aligné.<br><strong>Mouvement :</strong> Descendez contrôlée pour effleurer le sol avec la tête, puis poussez puissamment pour retendre les bras. Niveau très avancé.<br><strong>Respiration :</strong> Expirez à la force des épaules.",
+  "Élévations latérales (bouteilles)": "<strong>Position :</strong> Remplissez deux bouteilles d'eau pour servir de poids. Debout, une bouteille dans chaque main.<br><strong>Mouvement :</strong> Élevez vos bras sur les côtés jusqu'à former une ligne droite avec vos épaules.<br><strong>Respiration :</strong> Expirez en montant.",
+  "Shrugs (sacs lestés)": "<strong>Position :</strong> Prenez deux sacs à dos ou cabas lestés de livres. Un sac dans chaque main.<br><strong>Mouvement :</strong> Haussez vos épaules fermement vers le haut pour travailler les trapèzes.<br><strong>Respiration :</strong> Expirez à la contraction.",
+  "Planche inclinée push-up": "<strong>Position :</strong> En position de pompes, mais placez vos pieds sur un meuble haut pour basculer le centre de gravité vers l'avant.<br><strong>Mouvement :</strong> Faites vos pompes. Cela transfère la tension du bas des pectoraux vers vos deltoïdes (épaules).<br><strong>Respiration :</strong> Expirez lors de la poussée.",
+  "Y raise au sol": "<strong>Position :</strong> Allongé sur le ventre au sol, bras tendus écartés à 45° pour former la lettre 'Y' avec votre corps, pouces vers le haut.<br><strong>Mouvement :</strong> Décollez uniquement vos bras et le haut du thorax du sol en serrant l'arrière des épaules.<br><strong>Respiration :</strong> Expirez en soulevant les bras.",
+
+  // Biceps
+  "Curl barre droite": "<strong>Position :</strong> Debout, dos droit, barre tenue en supination (paumes vers le haut) largeur d'épaules.<br><strong>Mouvement :</strong> Fléchissez les coudes pour monter la barre vers votre poitrine en gardant vos coudes fixes collés au buste.<br><strong>Respiration :</strong> Expirez en montant la charge.",
+  "Curl barre EZ": "<strong>Position :</strong> Debout, barre EZ saisie sur les angles incurvés (soulage la tension dans les poignets).<br><strong>Mouvement :</strong> Montez la barre vers le haut en pliant les coudes sans balancer le bas du dos.<br><strong>Respiration :</strong> Expirez à la flexion.",
+  "Curl marteau haltères": "<strong>Position :</strong> Debout, un haltère dans chaque main, paumes face à face (prise neutre comme pour tenir un marteau).<br><strong>Mouvement :</strong> Montez les charges alternativement ou ensemble. Développe l'épaisseur du bras (brachio-radial).<br><strong>Respiration :</strong> Expirez en montant.",
+  "Curl incliné": "<strong>Position :</strong> Assis sur un banc incliné à 30°, bras ballants vers le sol avec des haltères.<br><strong>Mouvement :</strong> Effectuez un curl classique. L'inclinaison étire intensément la longue portion du biceps.<br><strong>Respiration :</strong> Expirez lors de la contraction.",
+  "Curl pupitre": "<strong>Position :</strong> Assis face au pupitre Larry Scott, l'arrière de vos bras calé et immobilisé sur le coussin.<br><strong>Mouvement :</strong> Enroulez vos bras pour monter la charge sans décoller les coudes du support. Empêche toute triche.<br><strong>Respiration :</strong> Expirez en montant.",
+  "Curl câble bas": "<strong>Position :</strong> Debout face à la poulie basse, barre droite ou corde en main.<br><strong>Mouvement :</strong> Fléchissez les coudes pour monter les mains. La poulie offre une tension continue tout au long du mouvement.<br><strong>Respiration :</strong> Expirez en fermant les bras.",
+  "Curl concentration": "<strong>Position :</strong> Assis sur un banc, buste penché. Calé le coude contre l'intérieur de votre cuisse correspondante, haltère en main.<br><strong>Mouvement :</strong> Amenez l'haltère vers votre visage en isolant parfaitement le biceps grâce à l'appui sur la cuisse.<br><strong>Respiration :</strong> Expirez en montant.",
+  "Curl Zottman": "<strong>Position :</strong> Debout, haltères en mains.<br><strong>Mouvement :</strong> Montez les haltères en supination (paumes en haut), puis arrivés en haut, tournez vos poignets en pronation (paumes en bas) pour effectuer la redescente.<br><strong>Respiration :</strong> Expirez à la montée, inspirez à la descente.",
+  "Curl inversé tractions": "<strong>Position :</strong> Suspendu sous une barre basse (ou table), mains en pronation (paumes vers l'avant).<br><strong>Mouvement :</strong> Tirez votre corps vers la barre en n'utilisant que la force de vos avant-bras et biceps.<br><strong>Respiration :</strong> Expirez en montant.",
+  "Chin-up": "<strong>Position :</strong> Suspendu à la barre fixe, mains en supination écartées de la largeur des épaules.<br><strong>Mouvement :</strong> Tirez tout votre corps vers le haut jusqu'à ce que votre menton dépasse la barre. Variante reine pour les biceps.<br><strong>Respiration :</strong> Expirez en montant.",
+  "Flexion isométrique porte": "<strong>Position :</strong> Debout dans l'encadrement d'une porte, placez vos mains sous le montant supérieur ou contre les parois.<br><strong>Mouvement :</strong> Poussez ou tirez de toutes vos forces de façon statique (isométrique) sans bouger pendant 20 à 30 secondes.<br><strong>Respiration :</strong> Bloquez brièvement ou respirez calmement.",
+  "Curl avec serviette": "<strong>Position :</strong> Passez une longue serviette sous votre cuisse ou sous un sac lourd, attrapez les deux extrémités avec vos mains.<br><strong>Mouvement :</strong> Tirez vers le haut en simulant un mouvement de curl pour contracter vos biceps.<br><strong>Respiration :</strong> Expirez à l'effort maximal.",
+  "Inverted curl bodyweight": "<strong>Position :</strong> Allongé sous une barre basse ou une table robuste.<br><strong>Mouvement :</strong> Saisissez le support en supination et tirez votre buste vers le haut en pliant uniquement les bras.<br><strong>Respiration :</strong> Expirez à la montée.",
+
+  // Triceps
+  "Extension corde câble": "<strong>Position :</strong> Face à la poulie haute, corde tenue à deux mains, coudes verrouillés le long des côtes.<br><strong>Mouvement :</strong> Poussez la corde vers le sol en écartant les deux extrémités en fin de trajectoire pour contracter les triceps.<br><strong>Respiration :</strong> Expirez en tendant les bras vers le bas.",
+  "Barre au front (skull crusher)": "<strong>Position :</strong> Allongé sur un banc plat, barre EZ tenue bras tendus au-dessus de vos yeux.<br><strong>Mouvement :</strong> Pliez uniquement les coudes pour descendre doucement la barre juste au niveau de votre front, puis poussez pour revenir.<br><strong>Respiration :</strong> Expirez à l'extension des coudes.",
+  "French press haltère": "<strong>Position :</strong> Assis ou debout, tenez un haltère lourd à deux mains verticalement au-dessus de votre tête.<br><strong>Mouvement :</strong> Descendez la charge derrière votre nuque en fléchissant les coudes, puis tendez les bras vers le plafond.<br><strong>Respiration :</strong> Inspirez à la descente, expirez en tendant.",
+  "Kickback haltère": "<strong>Position :</strong> Un genou sur le banc (ou debout buste penché), bras parallèle au sol, coude plié à 90° calé contre vous.<br><strong>Mouvement :</strong> Tendez complètement le bras vers l'arrière pour l'aligner avec le buste. Le coude ne doit jamais descendre.<br><strong>Respiration :</strong> Expirez en tendant le bras.",
+  "Dips parallèles": "<strong>Position :</strong> En appui sur vos deux mains sur les barres parallèles, bras tendus, jambes pliées.<br><strong>Mouvement :</strong> Descendez votre corps en pliant les bras jusqu'à former un angle de 90° aux coudes, puis repoussez fort.<br><strong>Respiration :</strong> Expirez lors de la remontée.",
+  "Extension unilatérale câble": "<strong>Position :</strong> De profil ou face à la poulie, poignée simple en main.<br><strong>Mouvement :</strong> Poussez le câble vers le bas d'un seul bras pour isoler parfaitement les trois chefs du triceps.<br><strong>Respiration :</strong> Expirez à la descente.",
+  "Close grip bench press": "<strong>Position :</strong> Allongé sur le banc de développé couché, mais placez vos mains très serrées (écartement inférieur à la largeur d'épaules).<br><strong>Mouvement :</strong> Descendez la barre sur le bas de la poitrine en gardant les coudes le long du buste, puis repoussez.<br><strong>Respiration :</strong> Expirez en montant.",
+  "Pompes serrées (diamant)": "<strong>Position :</strong> Mains rapprochées sous le sternum.<br><strong>Mouvement :</strong> Descendez la poitrine sur vos mains. Concentre tout le travail du poids du corps sur l'arrière des bras.<br><strong>Respiration :</strong> Expirez en haut.",
+  "Extension triceps au sol": "<strong>Position :</strong> En position de gainage sur les mains.<br><strong>Mouvement :</strong> Posez vos coudes au sol l'un après l'autre (ou en même temps) puis repoussez sur la paume de vos mains pour retendre les bras.<br><strong>Respiration :</strong> Expirez lors de la poussée vers le haut.",
+  "Pike push-up triceps": "<strong>Position :</strong> Position en V inversé, fesses hautes.<br><strong>Mouvement :</strong> Amenez vos coudes vers le sol parallèlement plutôt que de les ouvrir vers l'extérieur pour cibler spécifiquement les triceps.<br><strong>Respiration :</strong> Expirez en tendant les bras.",
+  "Triceps dips sur banc": "<strong>Position :</strong> Mains sur le rebord d'un banc ou d'une chaise solide située derrière vous, jambes tendues devant.<br><strong>Mouvement :</strong> Fléchissez vos bras pour descendre vos fessiers vers le sol, puis poussez pour verrouiller bras tendus.<br><strong>Respiration :</strong> Expirez à la remontée.",
+
+  // Abdos
+  "Crunch machine": "<strong>Position :</strong> Assis dans la machine à abdominaux, mains sur les poignées hautes, pieds calés.<br><strong>Mouvement :</strong> Enroulez votre colonne vers l'avant en rapprochant vos côtes de votre bassin grâce à la force des abdos.<br><strong>Respiration :</strong> Expirez profondément en fermant le buste.",
+  "Relevé de jambes suspendu": "<strong>Position :</strong> Suspendu à une barre de traction, bras tendus, jambes dans le vide.<br><strong>Mouvement :</strong> Montez vos jambes (tendues ou genoux fléchis) jusqu'à hauteur de hanches en enroulant le bassin. Évitez l'élan.<br><strong>Respiration :</strong> Expirez pendant la montée des jambes.",
+  "Russian twist leste": "<strong>Position :</strong> Assis au sol, jambes fléchies décollées du sol, tenez un poids à deux mains contre vous.<br><strong>Mouvement :</strong> Faites pivoter votre buste de gauche à droite en amenant le poids près du sol à chaque rotation.<br><strong>Respiration :</strong> Respirez de façon rythmée à chaque pivot.",
+  "Ab wheel": "<strong>Position :</strong> À genoux au sol, les mains saisissant les poignées de la roue abdominale placée sous vos épaules.<br><strong>Mouvement :</strong> Roulez vers l'avant en étirant votre corps sans jamais cambrer le dos, puis contractez les abdos pour revenir.<br><strong>Respiration :</strong> Expirez lors du retour en position initiale.",
+  "Cable crunch": "<strong>Position :</strong> À genoux face ou dos à la poulie haute, tenez la corde de chaque côté de votre cou.<br><strong>Mouvement :</strong> Enroulez votre colonne vers le bas pour amener votre tête vers vos genoux en contractant le grand droit.<br><strong>Respiration :</strong> Expirez fort en bas du mouvement.",
+  "Woodchopper câble": "<strong>Position :</strong> Debout de profil par rapport à la poulie, poignée saisie à deux mains.<br><strong>Mouvement :</strong> Effectuez un mouvement de rotation diagonale (comme pour couper du bois) en amenant le câble du haut vers le bas opposé.<br><strong>Respiration :</strong> Expirez lors de la rotation explosive.",
+  "Side bend haltère": "<strong>Position :</strong> Debout, un haltère dans la main droite, main gauche derrière la tête.<br><strong>Mouvement :</strong> Penchez le buste du côté droit (où se trouve le poids) puis redressez-vous en contractant l'oblique gauche.<br><strong>Respiration :</strong> Expirez lors du redressement du buste.",
+  "Crunch classique": "<strong>Position :</strong> Allongé sur le dos, genoux pliés, pieds à plat au sol, mains posées sur les tempes (sans tirer la nuque).<br><strong>Mouvement :</strong> Décollez simplement vos omoplates du sol en contractant vos abdominaux. Le bas du dos reste plaqué au sol.<br><strong>Respiration :</strong> Expirez en montant.",
+  "Gainage frontal": "<strong>Position :</strong> En appui sur vos avant-bras et vos pointes de pieds, corps aligné comme une planche droite.<br><strong>Mouvement :</strong> Maintenez la position statique en serrant volontairement le ventre et les fessiers. Ne laissez pas les hanches s'affaisser.<br><strong>Respiration :</strong> Respirez calmement par le nez.",
+  "Gainage latéral": "<strong>Position :</strong> En appui sur un seul avant-bras de profil, pieds l'un sur l'autre, hanches décollées du sol.<br><strong>Mouvement :</strong> Maintenez l'alignement droit de votre corps pour cibler intensément les muscles obliques.<br><strong>Respiration :</strong> Respirez régulièrement.",
+  "Mountain climbers": "<strong>Position :</strong> En position de pompe sur les mains.<br><strong>Mouvement :</strong> Ramenez rapidement vos genoux vers votre poitrine l'un après l'autre de manière dynamique (comme si vous couriez au sol).<br><strong>Respiration :</strong> Expirez à chaque montée rapide de genou.",
+  "Relevé de jambes au sol": "<strong>Position :</strong> Allongé sur le dos, mains sous les fesses pour protéger les lombaires, jambes tendues.<br><strong>Mouvement :</strong> Levez vos jambes ensemble jusqu'à la verticale, puis descendez-les lentement près du sol sans jamais toucher le sol.<br><strong>Respiration :</strong> Expirez en montant les jambes.",
+  "Russian twist": "<strong>Position :</strong> Assis au sol, buste incliné à 45°, pieds décollés du vide pour créer un déséquilibre.<br><strong>Mouvement :</strong> Tournez vos mains ensemble de gauche à droite en touchant le sol de chaque côté de vos hanches.<br><strong>Respiration :</strong> Expirez à chaque changement de côté.",
+  "Bicycle crunch": "<strong>Position :</strong> Allongé sur le dos, mains aux tempes, jambes décollées fléchies.<br><strong>Mouvement :</strong> Amenez votre coude droit vers votre genou gauche en tendant la jambe droite, puis alternez de façon fluide.<br><strong>Respiration :</strong> Expirez sur chaque torsion abdominale.",
+  "Flutter kicks": "<strong>Position :</strong> Allongé sur le dos, jambes tendues décollées de quelques centimètres du sol.<br><strong>Mouvement :</strong> Effectuez de petits battements de jambes verticaux et rapides (comme des ciseaux) sans cambrer le bas du dos.<br><strong>Respiration :</strong> Maintenez une respiration continue.",
+  "Hollow body hold": "<strong>Position :</strong> Allongé sur le dos.<br><strong>Mouvement :</strong> Décollez simultanément vos bras tendus derrière la tête et vos jambes tendues du sol. Seul le bas du dos touche le tapis (forme de banane). Tenez la position.<br><strong>Respiration :</strong> Respirez de façon superficielle mais contrôlée.",
+
+  // Fessiers
+  "Hip thrust barre": "<strong>Position :</strong> Haut du dos calé contre un banc, barre posée sur vos hanches (utilisez un coussin), pieds à plat.<br><strong>Mouvement :</strong> Poussez sur vos talons pour monter votre bassin vers le plafond jusqu'à aligner cuisses et buste. Serrez fort en haut.<br><strong>Respiration :</strong> Expirez en montant le bassin.",
+  "Cable kickback": "<strong>Position :</strong> Face à la poulie basse, sangle fixée à votre cheville, buste légèrement penché en avant.<br><strong>Mouvement :</strong> Envoyez votre jambe vers l'arrière et le haut en contractant volontairement le grand fessier. Revenez lentement.<br><strong>Respiration :</strong> Expirez au moment de l'extension arrière.",
+  "Presse jambes pieds hauts": "<strong>Position :</strong> Installez-vous sur la presse à cuisses, mais placez vos pieds tout en haut de la plateforme.<br><strong>Mouvement :</strong> Descendez et poussez. Le placement haut des pieds transfère la tension des quadriceps vers les fessiers et les ischio-jambiers.<br><strong>Respiration :</strong> Expirez à l'effort.",
+  "Abducteur machine": "<strong>Position :</strong> Assis sur la machine à abducteurs, le dos bien calé au fond du siège.<br><strong>Mouvement :</strong> Écartez vos cuisses vers l'extérieur contre la résistance des boudins pour cibler le moyen fessier.<br><strong>Respiration :</strong> Expirez lors de l'ouverture des jambes.",
+  "Squat sumo": "<strong>Position :</strong> Debout, barre sur le dos ou haltère lourd entre les mains, pieds très écartés (plus que le squat normal), pointes ouvertes à 45°.<br><strong>Mouvement :</strong> Descendez bas en ouvrant bien vos genoux dans l'axe de vos orteils. Sollicite fessiers et adducteurs.<br><strong>Respiration :</strong> Expirez en remontant.",
+  "Step-up leste": "<strong>Position :</strong> Debout avec un haltère dans chaque main face à un banc surélevé.<br><strong>Mouvement :</strong> Montez sur le banc en poussant uniquement sur la jambe avant, puis redescendez sans sauter.<br><strong>Respiration :</strong> Expirez lors de la phase ascensionnelle.",
+  "Hip thrust au sol": "<strong>Position :</strong> Allongé sur le dos, genoux pliés, pieds à plat sur le sol près de vos fesses.<br><strong>Mouvement :</strong> Soulevez vos hanches le plus haut possible en contractant puissamment vos fessiers. Alignement parfait genoux-hanches-épaules.<br><strong>Respiration :</strong> Expirez en haut du mouvement.",
+  "Donkey kick": "<strong>Position :</strong> À quatre pattes sur les mains et les genoux (position quadrupédique).<br><strong>Mouvement :</strong> Levez une jambe vers le haut en gardant le genou plié à 90°, de sorte que la plante du pied pointe vers le plafond.<br><strong>Respiration :</strong> Expirez en levant le pied.",
+  "Fire hydrant": "<strong>Position :</strong> À quatre pattes au sol.<br><strong>Mouvement :</strong> Sans bouger le bassin, ouvrez votre jambe droite sur le côté (comme un chien devant une borne d'incendie) puis revenez au centre. Cible le haut des fessiers.<br><strong>Respiration :</strong> Expirez lors de l'ouverture latérale.",
+  "Fesses squat pulse": "<strong>Position :</strong> En position basse de squat (les cuisses parallèles au sol).<br><strong>Mouvement :</strong> Restez en bas et effectuez de petits mouvements de haut en bas (rebonds/pulses) de quelques centimètres sans jamais remonter complètement.<br><strong>Respiration :</strong> Respirez normalement.",
+  "Clamshell": "<strong>Position :</strong> Allongé sur le côté, genoux pliés l'un sur l'autre à 90°, pieds collés ensemble.<br><strong>Mouvement :</strong> Ouvrez le genou du dessus vers le plafond comme un coquillage qui s'ouvre, sans décoller vos pieds.<br><strong>Respiration :</strong> Expirez en ouvrant le genou.",
+  "Fentes sumo": "<strong>Position :</strong> Debout, faites un grand pas de côté plutôt qu'en avant.<br><strong>Mouvement :</strong> Fléchissez la jambe écartée pour descendre vos hanches très bas, puis repoussez pour revenir au centre.<br><strong>Respiration :</strong> Expirez lors de la poussée de retour.",
+  "Single leg hip thrust": "<strong>Position :</strong> Allongé au sol sur le dos, genoux pliés, mais levez une jambe en l'air à la verticale.<br><strong>Mouvement :</strong> Poussez sur l'unique talon resté au sol pour monter votre bassin. Augmente drastiquement l'intensité du mouvement.<br><strong>Respiration :</strong> Expirez lors de la montée du bassin.",
+
+  // Cardio
+  "Vélo elliptique": "<strong>Mouvement :</strong> Placez vos pieds sur les pédales et mains sur les poignées mobiles. Effectuez un mouvement de course fluide sans impact en engageant à la fois vos bras et vos jambes.",
+  "Tapis de course": "<strong>Mouvement :</strong> Réglez la vitesse et l'inclinaison. Courrez ou marchez rapidement au centre de la bande en gardant une posture droite et des foulées naturelles.",
+  "Rameur (ergomètre)": "<strong>Mouvement :</strong> Pieds sanglés, fléchissez les jambes vers l'avant bras tendus, puis poussez fort sur vos jambes avant de tirer la poignée vers votre poitrine en penchant légèrement le buste en arrière.",
+  "Corde à sauter": "<strong>Mouvement :</strong> Coudes proches du corps, faites tourner la corde grâce à la rotation de vos poignets uniquement. Sautez sur la pointe des pieds de façon légère et rythmée.",
+  "Stepper": "<strong>Mouvement :</strong> Debout sur les marches de l'appareil, effectuez de petites poussées de jambes alternées (comme pour monter des escaliers à l'infini) sans vous affaler sur les poignées.",
+  "Vélo stationnaire": "<strong>Mouvement :</strong> Réglez la selle à hauteur de hanches. Pédalez avec un rythme constant en ajustant la résistance pour faire monter la fréquence cardiaque.",
+  "Battle ropes": "<strong>Mouvement :</strong> Debout en position de demi-squat stables, attrapez les grosses cordes à deux mains et créez des ondulations continues et dynamiques vers le sol.",
+  "Jumping jacks": "<strong>Mouvement :</strong> Debout, sautez en écartant simultanément les jambes et en tapant vos mains au-dessus de votre tête. Sautez à nouveau pour revenir pieds joints bras le long du corps.",
+  "Burpees": "<strong>Mouvement :</strong> Debout, accroupissez-vous, jetez vos pieds en arrière en position de pompe, faites une pompe (optionnel), ramenez les pieds et effectuez un saut vertical explosif.",
+  "High knees": "<strong>Mouvement :</strong> Courrez sur place de façon très dynamique en montant vos genoux le plus haut possible (idéalement jusqu'à hauteur de hanches) à chaque foulée.",
+  "Box jumps (chaise)": "<strong>Mouvement :</strong> Face à une plateforme stable, fléchissez les jambes puis sautez à pieds joints dessus. Amortissez doucement vos genoux pliés en haut, puis redescendez.",
+  "Sprint sur place": "<strong>Mouvement :</strong> Courrez sur place à l'intensité maximale absolue (100% de vitesse) pendant un court laps de temps en pompant vigoureusement avec vos bras.",
+  "Bear crawl": "<strong>Mouvement :</strong> À quatre pattes au sol, mais genoux décollés de quelques centimètres. Avancez à ras le sol en déplaçant simultanément main droite/pied gauche puis inversement.",
+  "Squat jump": "<strong>Mouvement :</strong> Descendez en squat classique puis utilisez la force de vos cuisses pour sauter de manière explosive vers le haut. Réceptionnez-vous directement en position de squat.",
+  "Inchworm": "<strong>Mouvement :</strong> Debout, penchez-vous pour toucher le sol, puis avancez sur vos mains une à une jusqu'à être en position de pompe, puis ramenez vos pieds vers vos mains sans plier les genoux."
+};
+
 const muscleNames = {
   pecs:"Pectoraux", dos:"Dos", jambes:"Jambes", epaules:"Épaules",
   biceps:"Biceps", triceps:"Triceps", abdos:"Abdos", fessiers:"Fessiers", cardio:"Cardio"
@@ -592,17 +773,17 @@ function showExercises(muscle) {
     const btn = document.createElement('button');
     btn.className = 'exercise-btn';
     btn.innerHTML = `
-      <span style="flex:1">${ex.name}${ex.tag ? `<span class="equip-tag">${ex.tag}</span>` : ''}</span>
+      <span style="flex:1; display:flex; align-items:center; justify-content:space-between; padding-right:12px;">
+        <span>${ex.name}${ex.tag ? `<span class="equip-tag">${ex.tag}</span>` : ''}</span>
+        <span onclick="event.stopPropagation(); openTutoModal('${ex.name.replace(/'/g, "\\'")}')" style="font-size:11px; background:rgba(255,94,0,0.12); border:1px solid rgba(255,94,0,0.35); padding:4px 10px; border-radius:6px; color:var(--orange); cursor:pointer; font-weight:600;">📖 Tuto</span>
+      </span>
       <span class="add-icon">+</span>`;
     btn.onclick = () => addToRoutine(ex.name);
     container.appendChild(btn);
   });
 }
 
-/** ─── MODIFICATIONS : SYSTÈME DE REPS ─── **/
-
 function addToRoutine(name) {
-  // On ajoute un objet au lieu d'une simple chaîne
   routine.push({
     name: name,
     sets: 3,
@@ -660,7 +841,6 @@ function renderRoutine() {
 
 function exportRoutine() {
   if (routine.length === 0) return;
-  // Mise à jour de l'export pour inclure les séries/reps
   const text = routine.map((ex, i) => `${i+1}. ${ex.name} (${ex.sets}x${ex.reps})`).join('\n');
   navigator.clipboard.writeText('Ma routine :\n' + text).then(() => {
     const btn = event.currentTarget;
@@ -677,6 +857,21 @@ function removeFromRoutine(idx) {
 function clearRoutine() {
   routine = [];
   renderRoutine();
+}
+
+// ─── LOGIQUE FENÊTRE MODALE EXPLICATIONS (NOUVEAU) ───
+function openTutoModal(exName) {
+  document.getElementById('tutoModalTitle').textContent = exName;
+  
+  const textDefault = "<strong>Position :</strong> Adoptez une posture stable et sécurisée pour vos articulations.<br><strong>Mouvement :</strong> Exécutez le geste de façon fluide, sans élan parasite.<br><strong>Contrôle :</strong> Retenez la charge à la descente et pensez à expirer pendant la phase d'effort maximal.";
+  
+  // Récupère l'explication spécifique ou met le texte par défaut si non trouvé
+  document.getElementById('tutoModalText').innerHTML = explanationsDB[exName] || textDefault;
+  document.getElementById('tutoModal').style.display = 'flex';
+}
+
+function closeTutoModal() {
+  document.getElementById('tutoModal').style.display = 'none';
 }
 
 // ─── TIMER ───
